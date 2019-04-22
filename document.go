@@ -83,19 +83,11 @@ const (
 // 	  "signatureValue": "sec:signatureValue"
 // 	}
 
-// Type - type of element
-type Type string
-
-// DIDElement - did element
-type DIDElement struct {
-	ID   `json:"id"`
-	Type `json:"type"`
+// DIDDocment - did document.
+// A DID points to a DID Document.
+type DIDDocment struct {
+	DIDNode
+	PublicKey      []PublicKey      `json:"publicKey,omitempty"`
+	Authentication []Authentication `json:"authentication,omitempty"`
+	Service        []Service        `json:"service,omitempty"`
 }
-
-// // DIDDocment -
-// type DIDDocment struct {
-// 	ID        string      `json:"id,omitempty"`
-// 	PublicKey []PublicKey `json:"publicKey,omitempty"`
-// 	// Authentication string
-// 	// Service        string
-// }
