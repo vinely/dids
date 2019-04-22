@@ -57,7 +57,7 @@ func (o *OntID) Scheme() *DIDScheme {
 }
 
 // String - DID interface
-func (o *OntID) String() string {
+func (o *OntID) String() ID {
 	return o.s.String()
 }
 

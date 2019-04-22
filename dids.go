@@ -11,6 +11,24 @@ const (
 	separator = ":"
 )
 
+// ID - string of DID
+type ID string
+
+// Valid - check id validity
+func (id *ID) Valid() bool {
+	_, err := Parse(string(*id))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// Analyze - parse id to didshceme
+func (id *ID) Analyze() (*DIDScheme, error) {
+	uri := string(*id)
+	return ParseScheme(uri)
+}
+
 // DIDScheme Decentralized Identifiers
 // The generic DID scheme is a URI scheme conformant with [RFC3986].
 // It consists of a DID followed by an optional path and/or fragment.
@@ -71,7 +89,7 @@ func (did *DIDScheme) Short() string {
 }
 
 // String - Uri string of DID
-func (did *DIDScheme) String() string {
+func (did *DIDScheme) String() ID {
 	var buf strings.Builder
 
 	buf.WriteString(DIDHeader)
@@ -97,7 +115,7 @@ func (did *DIDScheme) String() string {
 		buf.WriteString(did.Fragment)
 	}
 
-	return buf.String()
+	return ID(buf.String())
 }
 
 var (
@@ -145,7 +163,7 @@ func GetDIDTypeFromMethod(method string) (*DIDType, error) {
 // DID interface for DIDs
 type DID interface {
 	Scheme() *DIDScheme
-	String() string
+	String() ID
 	VerifyID() error
 }
 
@@ -170,7 +188,7 @@ func Parse(uri string) (DID, error) {
 }
 
 // CreateID - convenience way to create a specifical DID
-func CreateID(method string) (string, error) {
+func CreateID(method string) (ID, error) {
 	dt, err := GetDIDTypeFromMethod(method)
 	if err != nil {
 		return "", err
