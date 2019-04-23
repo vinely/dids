@@ -89,7 +89,7 @@ func (did *DIDScheme) Short() string {
 }
 
 // String - Uri string of DID
-func (did *DIDScheme) String() ID {
+func (did *DIDScheme) String() string {
 	var buf strings.Builder
 
 	buf.WriteString(DIDHeader)
@@ -115,7 +115,7 @@ func (did *DIDScheme) String() ID {
 		buf.WriteString(did.Fragment)
 	}
 
-	return ID(buf.String())
+	return buf.String()
 }
 
 var (
@@ -124,10 +124,10 @@ var (
 
 // DIDType -
 type DIDType struct {
-	Method string
-	Info   string
-	New    NewDID
-	Build  CreateDIDFromScheme
+	Method string              // method in did is the type sign of did
+	Info   string              // information description of did type
+	New    NewDID              // New a did
+	Build  CreateDIDFromScheme // create did from scheme
 }
 
 // CreateDIDFromScheme - construct a DID from didscheme
@@ -163,7 +163,7 @@ func GetDIDTypeFromMethod(method string) (*DIDType, error) {
 // DID interface for DIDs
 type DID interface {
 	Scheme() *DIDScheme
-	String() ID
+	String() string
 	VerifyID() error
 }
 
@@ -197,5 +197,5 @@ func CreateID(method string) (ID, error) {
 	if err != nil {
 		return "", err
 	}
-	return did.String(), nil
+	return ID(did.String()), nil
 }

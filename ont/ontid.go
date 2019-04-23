@@ -1,8 +1,9 @@
-package dids
+package ont
 
 import (
 	"errors"
 
+	"github.com/vinely/dids"
 	"github.com/vinely/ontchain/ontsdk"
 )
 
@@ -11,38 +12,38 @@ const (
 	OntMethod = "ont"
 )
 
-// OntID - DID for Ontology
-type OntID struct {
-	s *DIDScheme
+// ID - DID for Ontology
+type ID struct {
+	s *dids.DIDScheme
 }
 
 func init() {
-	dt := &DIDType{
+	dt := &dids.DIDType{
 		Method: OntMethod,
 		Info:   "DID for Ontology",
 		New:    new,
 		Build:  ontid,
 	}
-	RegisterDIDType(dt)
+	dids.RegisterDIDType(dt)
 }
 
 // Constructors
 
-func ontid(scheme *DIDScheme) (DID, error) {
-	return &OntID{scheme}, nil
+func ontid(scheme *dids.DIDScheme) (dids.DID, error) {
+	return &ID{scheme}, nil
 }
 
 // NewDID - simplest way to construct a DID
-func new() (DID, error) {
+func new() (dids.DID, error) {
 	id, err := ontsdk.GenerateID()
 	if err != nil {
 		return nil, err
 	}
-	s := &DIDScheme{
-		Method: OntMethod,
-		ID:     id,
+	s, err := dids.Parse(id)
+	if err != nil {
+		return nil, err
 	}
-	return &OntID{s}, nil
+	return s, nil
 }
 
 //type DID interface {
@@ -52,21 +53,21 @@ func new() (DID, error) {
 // }
 
 // Scheme - DID interface
-func (o *OntID) Scheme() *DIDScheme {
+func (o *ID) Scheme() *dids.DIDScheme {
 	return o.s
 }
 
 // String - DID interface
-func (o *OntID) String() ID {
+func (o *ID) String() string {
 	return o.s.String()
 }
 
 // VerifyID - DID interface
-func (o *OntID) VerifyID() error {
+func (o *ID) VerifyID() error {
 	if o.s.ID == "" {
 		return errors.New("empty ontid")
 	}
-	if !ontsdk.VerifyID(o.s.ID) {
+	if !ontsdk.VerifyID(o.s.String()) {
 		return errors.New("invalid id :" + o.s.ID)
 	}
 	return nil

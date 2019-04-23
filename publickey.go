@@ -14,11 +14,47 @@ type PublicKey interface {
 	Valid() bool
 }
 
+// PublicKeyValue - Value is a string
+// The value property of a public key MUST be exactly one of publicKeyPem, publicKeyJwk, publicKeyHex, publicKeyBase64, publicKeyBase58, publicKeyMultibase, depending on the format and encoding of the public key.
+type PublicKeyValue string
+
+// PublicKeyPem -
+type PublicKeyPem struct {
+	Value PublicKeyValue `json:"publicKeyPem"`
+}
+
+// PublicKeyJwk -
+type PublicKeyJwk struct {
+	Value PublicKeyValue `json:"publicKeyJwk"`
+}
+
+// PublicKeyHex -
+type PublicKeyHex struct {
+	Value PublicKeyValue `json:"publicKeyHex"`
+}
+
+// PublicKeyBase64 -
+type PublicKeyBase64 struct {
+	Value PublicKeyValue `json:"publicKeyBase64"`
+}
+
+// PublicKeyBase58 -
+type PublicKeyBase58 struct {
+	Value PublicKeyValue `json:"publicKeyBase58"`
+}
+
+// PublicKeyMultibase -
+type PublicKeyMultibase struct {
+	Value PublicKeyValue `json:"publicKeyMultibase"`
+}
+
 // BasePublicKey - Base public key
 type BasePublicKey struct {
 	DIDNode
 	Controller ID `json:"controller"` // identity of controller
 }
+
+// examples from https://w3c-ccg.github.io/ld-cryptosuite-registry/
 
 // https://w3c-ccg.github.io/ld-cryptosuite-registry/#Ed25519Signature2018
 // Summary
@@ -30,7 +66,7 @@ type BasePublicKey struct {
 // Ed25519Key -
 type Ed25519Key struct {
 	BasePublicKey
-	PublicKeyBase58 string `json:"publicKeyBase58"`
+	PublicKeyBase58
 }
 
 const (
@@ -58,7 +94,7 @@ func init() {
 // RsaKey -
 type RsaKey struct {
 	BasePublicKey
-	PublicKeyPem string `json:"publicKeyPem"`
+	PublicKeyPem
 }
 
 const (
@@ -86,7 +122,7 @@ func init() {
 // EdDsaSAKey -
 type EdDsaSAKey struct {
 	BasePublicKey
-	PublicKeyHex string `json:"publicKeyHex"`
+	PublicKeyHex
 }
 
 const (
