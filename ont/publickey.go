@@ -24,7 +24,7 @@ func getPublicKeyFromSDK(id *sdk.Identity, i int) (*PublicKey, error) {
 		return nil, err
 	}
 	pk := &PublicKey{}
-	pk.ID = dids.ID(id.ID + "#" + PublicKeyFragmentHeader + id.Label)
+	pk.ID = dids.ID(id.ID + "#" + PublicKeyFragmentHeader + c.ID)
 	pk.Controller = dids.ID(id.ID)
 	pk.Type = ""
 	pk.index = i
