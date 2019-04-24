@@ -23,10 +23,15 @@ func (id *ID) Valid() bool {
 	return true
 }
 
-// Analyze - parse id to didshceme
-func (id *ID) Analyze() (*DIDScheme, error) {
+// Scheme - parse id to didshceme
+func (id *ID) Scheme() (*DIDScheme, error) {
 	uri := string(*id)
 	return ParseScheme(uri)
+}
+
+// String - id string
+func (id *ID) String() string {
+	return string(*id)
 }
 
 // DIDScheme Decentralized Identifiers
@@ -47,10 +52,19 @@ type DIDScheme struct {
 	Method   string
 	ID       string   // major idstring
 	IDExt    []string // rest idstrings
-	Path     string   // path
 	RawPath  string   // encoded path hint (see EscapedPath method)
 	Query    string   // encoded query values, without '?'
 	Fragment string   // fragment for references, without '#'
+}
+
+// GetMethod - Parse method string from uri
+func GetMethod(uri string) (string, error) {
+	if uri[0:3] != DIDHeader || uri[3:4] != separator {
+		return "", errors.New("not a did uri")
+	}
+	rest := uri[4:]
+	method, _ := split(rest, separator)
+	return method, nil
 }
 
 // ParseScheme - parse uri string to DIDScheme
@@ -76,8 +90,8 @@ func ParseScheme(uri string) (*DIDScheme, error) {
 	return did, nil
 }
 
-// Short - Uri short string of DID
-func (did *DIDScheme) Short() string {
+// Base - Uri short string of DID
+func (did *DIDScheme) Base() string {
 	var buf strings.Builder
 
 	buf.WriteString(DIDHeader)
@@ -124,17 +138,11 @@ var (
 
 // DIDType -
 type DIDType struct {
-	Method string              // method in did is the type sign of did
-	Info   string              // information description of did type
-	New    NewDID              // New a did
-	Build  CreateDIDFromScheme // create did from scheme
+	Method string                        // method in did is the type sign of did
+	Info   string                        // information description of did type
+	New    func() (DID, error)           // New a did
+	Parse  func(uri string) (DID, error) // create did from scheme
 }
-
-// CreateDIDFromScheme - construct a DID from didscheme
-type CreateDIDFromScheme func(scheme *DIDScheme) (DID, error)
-
-// NewDID - simplest way to construct a DID
-type NewDID func() (DID, error)
 
 // RegisterDIDType - Register a new DID type
 func RegisterDIDType(d *DIDType) error {
@@ -160,42 +168,32 @@ func GetDIDTypeFromMethod(method string) (*DIDType, error) {
 	return &dt, nil
 }
 
-// DID interface for DIDs
-type DID interface {
-	Scheme() *DIDScheme
-	String() string
-	VerifyID() error
-}
-
 // Parse - parse uri string to DID struct
 func Parse(uri string) (DID, error) {
-	scheme, err := ParseScheme(uri)
+	method, err := GetMethod(uri)
 	if err != nil {
 		return nil, err
 	}
-	dt, err := GetDIDTypeFromMethod(scheme.Method)
+	dt, err := GetDIDTypeFromMethod(method)
 	if err != nil {
 		return nil, err
 	}
-	did, err := dt.Build(scheme)
+	did, err := dt.Parse(uri)
 	if err != nil {
-		return nil, err
-	}
-	if err = did.VerifyID(); err != nil {
 		return nil, err
 	}
 	return did, nil
 }
 
 // CreateID - convenience way to create a specifical DID
-func CreateID(method string) (ID, error) {
+func CreateID(method string) (DID, error) {
 	dt, err := GetDIDTypeFromMethod(method)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	did, err := dt.New()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return ID(did.String()), nil
+	return did, nil
 }

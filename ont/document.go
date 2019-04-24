@@ -32,14 +32,14 @@ func New() (*Document, *chain.ManagedIdentity, error) {
 		return nil, nil, err
 	}
 
-	return DocumentFromID(id)
+	return DocumentFromID(id.ID())
 }
 
 // DocumentFromID - create document from ID(DIDs)
-func DocumentFromID(id dids.ID) (*Document, *chain.ManagedIdentity, error) {
+func DocumentFromID(id *dids.ID) (*Document, *chain.ManagedIdentity, error) {
 	passwd := createPassword()
 
-	identity, err := chain.GetIdentityFromID(string(id), []byte(passwd))
+	identity, err := chain.GetIdentityFromID(string(*id), []byte(passwd))
 	if err != nil {
 		return nil, nil, err
 	}
