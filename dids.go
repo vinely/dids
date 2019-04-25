@@ -34,6 +34,14 @@ func (id *ID) String() string {
 	return string(*id)
 }
 
+// Base - base id string
+func (id *ID) Base() string {
+	rest := string(*id)
+	rest, _ = split(rest, "#")
+	rest, _ = split(rest, "?")
+	return rest
+}
+
 // DIDScheme Decentralized Identifiers
 // The generic DID scheme is a URI scheme conformant with [RFC3986].
 // It consists of a DID followed by an optional path and/or fragment.
